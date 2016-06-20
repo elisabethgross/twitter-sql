@@ -3,21 +3,17 @@ var express = require('express');
 var router = express.Router();
 var client = require('../db');
 
-
 module.exports = function makeRouterWithSockets (io) {
 
   // a reusable function
   function respondWithAllTweets (req, res, next){
     client.query('SELECT * FROM tweets INNER JOIN users ON tweets.userid = users.id', function (err, result) {
       if (err) return next(err);
-      var tweets = result.rows;
-      res.render('index', { title: 'Twitter.js', tweets: tweets, showForm: true});
+      res.render('index', {
+        title: 'Twitter.js',
+        tweets: result.rows,
+        showForm: true});
     });
-    // res.render('index', {
-    //   title: 'Twitter.js',
-    //   tweets: allTheTweets,
-    //   showForm: true
-    // });
   }
 
   // here we basically treet the root view and tweets view as identical
@@ -28,10 +24,9 @@ module.exports = function makeRouterWithSockets (io) {
   router.get('/users/:username', function(req, res, next){
     client.query('SELECT * FROM tweets INNER JOIN users ON tweets.userid = users.id WHERE users.name =$1', [req.params.username], function (err, result) {
       if (err) return next(err);
-      var tweetsForName = result.rows;
       res.render('index', {
         title: 'Twitter.js',
-        tweets: tweetsForName,
+        tweets: result.rows,
         showForm: true,
         username: req.params.username
       });
